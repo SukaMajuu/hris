@@ -5,22 +5,6 @@ set -e
 
 source .env.deploy
 
-# Variables
-RESOURCE_GROUP="hris-resources"
-LOCATION="eastus"
-ACR_NAME="hrisregistry"
-POSTGRESQL_SERVER_NAME="hris-postgres-server"
-POSTGRESQL_DB_NAME="hris"
-POSTGRESQL_ADMIN="hrisadmin"
-APP_SERVICE_PLAN="hris-app-service-plan"
-FRONTEND_APP_NAME="hris-frontend-sukamaju123"
-BACKEND_APP_NAME="hris-backend-sukamaju123"
-
-if [[ -z "$POSTGRESQL_PASSWORD" ]]; then
-  echo "Error: POSTGRESQL_PASSWORD not set or empty"
-  exit 1
-fi
-
 # Create Resource Group if it doesn't exist
 echo "Creating resource group..."
 az group create --name $RESOURCE_GROUP --location $LOCATION
@@ -103,11 +87,13 @@ az webapp config appsettings set \
   APP_ENV=production \
   APP_DEBUG=false \
   DB_CONNECTION=pgsql \
-  DB_HOST=$POSTGRESQL_SERVER_NAME.postgres.database.azure.com \
-  DB_PORT=5432 \
-  DB_DATABASE=$POSTGRESQL_DB_NAME \
-  DB_USERNAME=$POSTGRESQL_ADMIN@$POSTGRESQL_SERVER_NAME \
-  DB_PASSWORD=$POSTGRESQL_PASSWORD
+  DB_HOST=$SUPABASE_DB_HOST \
+  DB_PORT=$SUPABASE_DB_PORT \
+  DB_DATABASE=$SUPABASE_DB_NAME \
+  DB_USERNAME=$SUPABASE_DB_USERNAME \
+  DB_PASSWORD=$SUPABASE_DB_PASSWORD \
+  SUPABASE_URL=$SUPABASE_URL \
+  SUPABASE_KEY=$SUPABASE_KEY
 
 # Get ACR credentials
 ACR_USERNAME=$(az acr credential show --name $ACR_NAME --query username --output tsv)
