@@ -8,6 +8,7 @@ on:
             - "apps/frontend/**"
             - ".github/workflows/deploy-fe.yml"
             - "infrastructure/docker/docker-compose.yml"
+            - "infrastructure/docker/frontend/Dockerfile"
 
 jobs:
     build-and-deploy:
