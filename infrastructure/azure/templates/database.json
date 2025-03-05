@@ -1,0 +1,104 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "serverName": {
+            "type": "string",
+            "metadata": {
+                "description": "PostgreSQL server name"
+            }
+        },
+        "databaseName": {
+            "type": "string",
+            "metadata": {
+                "description": "PostgreSQL database name"
+            }
+        },
+        "adminLogin": {
+            "type": "string",
+            "metadata": {
+                "description": "Administrator username"
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Administrator password"
+            }
+        },
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "Location for resources"
+            }
+        },
+        "skuName": {
+            "type": "string",
+            "defaultValue": "B_Gen5_1",
+            "metadata": {
+                "description": "PostgreSQL sku name"
+            }
+        },
+        "skuTier": {
+            "type": "string",
+            "defaultValue": "Basic",
+            "metadata": {
+                "description": "PostgreSQL pricing tier"
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.DBforPostgreSQL/servers",
+            "apiVersion": "2017-12-01",
+            "name": "[parameters('serverName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "version": "11",
+                "administratorLogin": "[parameters('adminLogin')]",
+                "administratorLoginPassword": "[parameters('adminPassword')]",
+                "sslEnforcement": "Enabled",
+                "createMode": "Default"
+            },
+            "sku": {
+                "name": "[parameters('skuName')]",
+                "tier": "[parameters('skuTier')]",
+                "capacity": 1,
+                "size": "B_Gen5_1",
+                "family": "Gen5"
+            },
+            "resources": [
+                {
+                    "type": "firewallRules",
+                    "apiVersion": "2017-12-01",
+                    "name": "AllowAllAzureIPs",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('serverName'))]"
+                    ],
+                    "properties": {
+                        "startIpAddress": "0.0.0.0",
+                        "endIpAddress": "0.0.0.0"
+                    }
+                },
+                {
+                    "type": "databases",
+                    "apiVersion": "2017-12-01",
+                    "name": "[parameters('databaseName')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('serverName'))]"
+                    ],
+                    "properties": {
+                        "charset": "utf8",
+                        "collation": "en_US.utf8"
+                    }
+                }
+            ]
+        }
+    ],
+    "outputs": {
+        "fullyQualifiedDomainName": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.DBforPostgreSQL/servers', parameters('serverName'))).fullyQualifiedDomainName]"
+        }
+    }
+}
