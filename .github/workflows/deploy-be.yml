@@ -30,6 +30,7 @@ jobs:
               uses: docker/build-push-action@v4
               with:
                   context: ./apps/backend
+                  file: ./infrastructure/docker/backend/Dockerfile
                   push: true
                   tags: ${{ secrets.AZURE_CONTAINER_REGISTRY }}/hris-backend-sukamaju123:${{ github.sha }}
                   cache-from: type=registry,ref=${{ secrets.AZURE_CONTAINER_REGISTRY }}/hris-backend-sukamaju123:latest
