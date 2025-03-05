@@ -26,34 +26,48 @@
                 "description": "URL of the Azure Container Registry"
             }
         },
-        "databaseServer": {
+        "supabaseDbHost": {
             "type": "string",
             "metadata": {
-                "description": "PostgreSQL server FQDN"
+                "description": "Supabase Database Host (connection pooler)"
             }
         },
-        "databasePort": {
+        "supabaseDbPort": {
             "type": "int",
+            "defaultValue": 6543,
             "metadata": {
-                "description": "PostgreSQL server port"
+                "description": "Supabase Database Port"
             }
         },
-        "databaseName": {
+        "supabaseDbName": {
+            "type": "string",
+            "defaultValue": "postgres",
+            "metadata": {
+                "description": "Supabase Database Name"
+            }
+        },
+        "supabaseDbUsername": {
             "type": "string",
             "metadata": {
-                "description": "PostgreSQL database name"
+                "description": "Supabase Database Username"
             }
         },
-        "databaseUser": {
-            "type": "string",
-            "metadata": {
-                "description": "Database administrator username"
-            }
-        },
-        "databasePassword": {
+        "supabaseDbPassword": {
             "type": "securestring",
             "metadata": {
-                "description": "Database administrator password"
+                "description": "Supabase Database Password"
+            }
+        },
+        "supabaseUrl": {
+            "type": "string",
+            "metadata": {
+                "description": "Supabase Project URL"
+            }
+        },
+        "supabaseKey": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Supabase API Key"
             }
         },
         "skuName": {
@@ -145,23 +159,31 @@
                         },
                         {
                             "name": "DB_HOST",
-                            "value": "[parameters('databaseServer')]"
+                            "value": "[parameters('supabaseDbHost')]"
                         },
                         {
                             "name": "DB_PORT",
-                            "value": "[parameters('databasePort')]"
+                            "value": "[parameters('supabaseDbPort')]"
                         },
                         {
                             "name": "DB_DATABASE",
-                            "value": "[parameters('databaseName')]"
+                            "value": "[parameters('supabaseDbName')]"
                         },
                         {
                             "name": "DB_USERNAME",
-                            "value": "[parameters('databaseUser')]"
+                            "value": "[parameters('supabaseDbUsername')]"
                         },
                         {
                             "name": "DB_PASSWORD",
-                            "value": "[parameters('databasePassword')]"
+                            "value": "[parameters('supabaseDbPassword')]"
+                        },
+                        {
+                            "name": "SUPABASE_URL",
+                            "value": "[parameters('supabaseUrl')]"
+                        },
+                        {
+                            "name": "SUPABASE_KEY",
+                            "value": "[parameters('supabaseKey')]"
                         },
                         {
                             "name": "WEBSITES_PORT",
