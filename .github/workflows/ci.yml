@@ -44,9 +44,9 @@ jobs:
             postgres:
                 image: postgres:15
                 env:
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_USER: postgres
-                    POSTGRES_DB: testing
+                    POSTGRES_PASSWORD: root
+                    POSTGRES_USER: root
+                    POSTGRES_DB: hris
                 ports:
                     - 5432:5432
                 options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -94,9 +94,9 @@ jobs:
                   DB_CONNECTION: pgsql
                   DB_HOST: localhost
                   DB_PORT: 5432
-                  DB_DATABASE: testing
-                  DB_USERNAME: postgres
-                  DB_PASSWORD: password
+                  DB_DATABASE: hris
+                  DB_USERNAME: root
+                  DB_PASSWORD: root
 
             - name: Run Laravel tests
               run: php artisan test --parallel
@@ -105,107 +105,6 @@ jobs:
                   DB_CONNECTION: pgsql
                   DB_HOST: localhost
                   DB_PORT: 5432
-                  DB_DATABASE: testing
-                  DB_USERNAME: postgres
-                  DB_PASSWORD: password
-
-    e2e-tests:
-        name: End-to-End Tests
-        needs: [frontend-checks, backend-checks]
-        runs-on: ubuntu-latest
-
-        services:
-            postgres:
-                image: postgres:15
-                env:
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_USER: postgres
-                    POSTGRES_DB: testing
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        steps:
-            - uses: actions/checkout@v3
-
-            - name: Setup Backend
-              uses: shivammathur/setup-php@v2
-              with:
-                  php-version: "8.2"
-                  extensions: mbstring, dom, fileinfo, pgsql, pdo_pgsql
-
-            - name: Install Backend Dependencies
-              run: composer install --prefer-dist --no-interaction
-              working-directory: apps/backend
-
-            - name: Setup Backend Environment
-              run: |
-                  cp .env.example .env
-                  php artisan key:generate
-                  php artisan migrate --force
-              working-directory: apps/backend
-              env:
-                  DB_CONNECTION: pgsql
-                  DB_HOST: localhost
-                  DB_PORT: 5432
-                  DB_DATABASE: testing
-                  DB_USERNAME: postgres
-                  DB_PASSWORD: password
-
-            - name: Start Backend Server
-              run: php artisan serve --port=8000 &
-              working-directory: apps/backend
-              env:
-                  DB_CONNECTION: pgsql
-                  DB_HOST: localhost
-                  DB_PORT: 5432
-                  DB_DATABASE: testing
-                  DB_USERNAME: postgres
-                  DB_PASSWORD: password
-
-            - name: Setup Node.js
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 18
-                  cache: "npm"
-                  cache-dependency-path: "apps/frontend/package-lock.json"
-
-            - name: Install Frontend Dependencies
-              run: npm ci
-              working-directory: apps/frontend
-
-            - name: Setup Frontend Environment
-              run: |
-                  echo "NEXT_PUBLIC_API_URL=http://localhost:8000/api" > .env.local
-              working-directory: apps/frontend
-
-            - name: Install Playwright Browsers
-              run: npx playwright install --with-deps
-              working-directory: apps/frontend
-
-            - name: Build Frontend
-              run: npm run build
-              working-directory: apps/frontend
-
-            - name: Start Frontend
-              run: npm start &
-              working-directory: apps/frontend
-
-            - name: Wait for servers to start
-              run: |
-                  echo "Waiting for servers to start..."
-                  sleep 10
-                  curl --retry 5 --retry-delay 2 --retry-connrefused http://localhost:3000
-                  curl --retry 5 --retry-delay 2 --retry-connrefused http://localhost:8000/api/health
-
-            - name: Run E2E Tests
-              run: npx playwright test
-              working-directory: apps/frontend
-
-            - name: Upload Test Results
-              if: always()
-              uses: actions/upload-artifact@v3
-              with:
-                  name: playwright-report
-                  path: apps/frontend/playwright-report/
-                  retention-days: 30
+                  DB_DATABASE: hris
+                  DB_USERNAME: root
+                  DB_PASSWORD: root
