@@ -25,6 +25,9 @@ WORKDIR /var/www/html
 # Copy application code
 COPY . ./
 
+# Create .env file from .env.example
+RUN cp .env.example .env
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html
 RUN chmod -R 755 /var/www/html/storage
@@ -33,7 +36,7 @@ RUN chmod -R 755 /var/www/html/storage
 RUN composer install --optimize-autoloader --no-dev
 
 # Generate application key
-RUN php artisan key:generate
+RUN php artisan key:generate --force
 
 # Cache configuration and routes
 RUN php artisan config:cache
