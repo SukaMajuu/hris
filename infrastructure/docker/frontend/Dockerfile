@@ -5,7 +5,7 @@ WORKDIR /app
 # Copy package files and install dependencies
 COPY apps/frontend/package*.json ./
 
-RUN npm install
+RUN npm install --package-lock-only
 
 RUN npm ci
 
