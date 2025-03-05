@@ -3,14 +3,14 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 
 # Copy package files and install dependencies
-COPY apps/frontend/package*.json ./
+COPY package*.json ./
 
 RUN npm install --package-lock-only
 
 RUN npm ci
 
 # Copy application code
-COPY apps/frontend/ ./
+COPY . ./
 
 # Build the Next.js application
 RUN npm run build

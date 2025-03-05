@@ -23,7 +23,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 # Copy application code
-COPY apps/backend/ .
+COPY . ./
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html
