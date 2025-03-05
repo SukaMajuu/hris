@@ -24,7 +24,7 @@ A modern, full-stack human resource management system built with Next.js and Lar
 
 -   **Containerization**: Docker, Docker Compose
 -   **CI/CD**: GitHub Actions
--   **Cloud**: Microsoft Azure (App Service, Container Registry, PostgreSQL)
+-   **Cloud**: Microsoft Azure (App Service, Container Registry)
 -   **Infrastructure as Code**: Azure CLI, ARM templates
 
 ## Getting Started
