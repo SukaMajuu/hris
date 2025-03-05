@@ -32,6 +32,12 @@
                 "description": "PostgreSQL server FQDN"
             }
         },
+        "databasePort": {
+            "type": "int",
+            "metadata": {
+                "description": "PostgreSQL server port"
+            }
+        },
         "databaseName": {
             "type": "string",
             "metadata": {
@@ -143,7 +149,7 @@
                         },
                         {
                             "name": "DB_PORT",
-                            "value": "5432"
+                            "value": "[parameters('databasePort')]"
                         },
                         {
                             "name": "DB_DATABASE",
