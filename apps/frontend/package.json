@@ -9,7 +9,10 @@
     "lint": "next lint",
     "storybook": "storybook dev -p 6006",
     "generate:api": "openapi-typescript --input ../../docs/api/swagger.yaml --output ./src/types/api.ts",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.67.1",
