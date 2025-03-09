@@ -33,100 +33,96 @@ components:
                     example: "john.doe@example.com"
                 role:
                     type: string
-                    enum: [admin, hr, manager, employee]
+                    enum: [admin, hr, employee]
                     example: "employee"
+                status:
+                    type: string
+                    enum: [active, inactive]
                 created_at:
                     type: string
                     format: date-time
+
         Employee:
             type: object
             properties:
                 id:
                     type: integer
-                    example: 1
-                user_id:
-                    type: integer
-                    example: 1
-                employee_id:
-                    type: string
-                    example: "EMP-2023-001"
                 first_name:
                     type: string
-                    example: "John"
                 last_name:
                     type: string
-                    example: "Doe"
-                position:
+                birth_date:
                     type: string
-                    example: "Software Engineer"
-                department:
+                    format: date
+                gender:
                     type: string
-                    example: "Engineering"
+                phone:
+                    type: string
+                address:
+                    type: string
                 hire_date:
                     type: string
                     format: date
-                    example: "2023-01-15"
-                status:
+                department_id:
+                    type: integer
+                position_id:
+                    type: integer
+                employment_status:
                     type: string
-                    enum: [active, inactive, on_leave]
-                    example: "active"
-        Department:
+                    enum: [permanent, contract, probation]
+
+        Attendance:
             type: object
             properties:
                 id:
                     type: integer
-                    example: 1
-                name:
-                    type: string
-                    example: "Engineering"
-                manager_id:
-                    type: integer
-                    nullable: true
-                    example: 5
-        Leave:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    example: 1
                 employee_id:
                     type: integer
-                    example: 1
-                leave_type:
-                    type: string
-                    enum: [annual, sick, maternity, paternity, unpaid]
-                    example: "annual"
-                start_date:
+                date:
                     type: string
                     format: date
-                    example: "2023-06-15"
-                end_date:
+                clock_in:
+                    type: string
+                    format: time
+                clock_out:
+                    type: string
+                    format: time
+                status:
+                    type: string
+                    enum: [present, absent, late]
+                location:
+                    type: string
+                notes:
+                    type: string
+
+        OvertimeRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                employee_id:
+                    type: integer
+                date:
                     type: string
                     format: date
-                    example: "2023-06-20"
+                start_time:
+                    type: string
+                    format: time
+                end_time:
+                    type: string
+                    format: time
+                duration:
+                    type: number
+                reason:
+                    type: string
                 status:
                     type: string
                     enum: [pending, approved, rejected]
-                    example: "pending"
-                reason:
-                    type: string
-                    example: "Family vacation"
-        Error:
-            type: object
-            properties:
-                code:
-                    type: integer
-                message:
-                    type: string
-
-security:
-    - bearerAuth: []
 
 paths:
     /auth/login:
         post:
-            tags:
-                - Authentication
+            tags: [Authentication]
             summary: User login
             security: []
             requestBody:
@@ -139,17 +135,12 @@ paths:
                                 email:
                                     type: string
                                     format: email
-                                    example: "john.doe@example.com"
                                 password:
                                     type: string
                                     format: password
-                                    example: "password123"
-                            required:
-                                - email
-                                - password
             responses:
-                "200":
-                    description: Successful login
+                200:
+                    description: Login successful
                     content:
                         application/json:
                             schema:
@@ -157,8 +148,173 @@ paths:
                                 properties:
                                     token:
                                         type: string
-                                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                                     user:
                                         $ref: "#/components/schemas/User"
-                "401":
-                    description: Invalid credentials
+
+    /employees:
+        get:
+            tags: [Employees]
+            summary: Get all employees
+            parameters:
+                - in: query
+                  name: department_id
+                  schema:
+                      type: integer
+                - in: query
+                  name: status
+                  schema:
+                      type: string
+            responses:
+                200:
+                    description: List of employees
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/Employee"
+
+        post:
+            tags: [Employees]
+            summary: Create new employee
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Employee"
+            responses:
+                201:
+                    description: Employee created
+
+    /employees/{id}:
+        get:
+            tags: [Employees]
+            summary: Get employee by ID
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: integer
+            responses:
+                200:
+                    description: Employee details
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Employee"
+
+    /attendance:
+        post:
+            tags: [Attendance]
+            summary: Clock in/out
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                type:
+                                    type: string
+                                    enum: [in, out]
+                                location:
+                                    type: string
+            responses:
+                200:
+                    description: Attendance recorded
+
+        get:
+            tags: [Attendance]
+            summary: Get attendance records
+            parameters:
+                - in: query
+                  name: start_date
+                  schema:
+                      type: string
+                      format: date
+                - in: query
+                  name: end_date
+                  schema:
+                      type: string
+                      format: date
+                - in: query
+                  name: employee_id
+                  schema:
+                      type: integer
+            responses:
+                200:
+                    description: List of attendance records
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/Attendance"
+
+    /overtime:
+        post:
+            tags: [Overtime]
+            summary: Submit overtime request
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/OvertimeRequest"
+            responses:
+                201:
+                    description: Overtime request submitted
+
+        get:
+            tags: [Overtime]
+            summary: Get overtime requests
+            parameters:
+                - in: query
+                  name: status
+                  schema:
+                      type: string
+                      enum: [pending, approved, rejected]
+                - in: query
+                  name: employee_id
+                  schema:
+                      type: integer
+            responses:
+                200:
+                    description: List of overtime requests
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/OvertimeRequest"
+
+    /overtime/{id}/approve:
+        post:
+            tags: [Overtime]
+            summary: Approve/reject overtime request
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: integer
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                status:
+                                    type: string
+                                    enum: [approved, rejected]
+                                notes:
+                                    type: string
+            responses:
+                200:
+                    description: Overtime request updated
+
+security:
+    - bearerAuth: []
