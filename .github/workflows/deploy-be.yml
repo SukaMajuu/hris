@@ -5,7 +5,7 @@ on:
         branches:
             - main
         paths:
-            - "backend/**"
+            - "apps/backend/**"
             - ".github/workflows/deploy-be.yml"
             - "infrastructure/docker/docker-compose.yml"
             - "infrastructure/docker/backend/Dockerfile"
