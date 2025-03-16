@@ -28,9 +28,8 @@ This approach runs the database in Docker while running the frontend and backend
 1. Clone the repository
 
     ```bash
-    git clone https://github.com/your-org/hris2.git
-    cd hris2
-
+    git clone https://github.com/SukaMajuu/hris.git
+    cd hris
     ```
 
 2. Run the setup script (first-time only)
