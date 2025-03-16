@@ -47,31 +47,80 @@ components:
             properties:
                 id:
                     type: integer
+                user_id:
+                    type: integer
+                employee_code:
+                    type: string
                 first_name:
                     type: string
                 last_name:
                     type: string
-                birth_date:
-                    type: string
-                    format: date
-                gender:
-                    type: string
                 phone:
                     type: string
-                address:
-                    type: string
-                hire_date:
-                    type: string
-                    format: date
                 department_id:
                     type: integer
                 position_id:
                     type: integer
                 employment_status:
                     type: string
-                    enum: [permanent, contract, probation]
+                    enum: [active, inactive]
+                hire_date:
+                    type: string
+                    format: date
+                created_at:
+                    type: string
+                    format: date-time
+                updated_at:
+                    type: string
+                    format: date-time
 
-        Attendance:
+        EmployeeDocument:
+            type: object
+            properties:
+                id:
+                    type: integer
+                employee_id:
+                    type: integer
+                title:
+                    type: string
+                document_url:
+                    type: string
+                status:
+                    type: string
+                    enum: [draft, active]
+                created_by:
+                    type: integer
+                created_at:
+                    type: string
+                    format: date-time
+                updated_at:
+                    type: string
+                    format: date-time
+
+        AttendanceLog:
+            type: object
+            properties:
+                id:
+                    type: integer
+                employee_id:
+                    type: integer
+                event_type:
+                    type: string
+                    enum: [check_in, check_out]
+                timestamp:
+                    type: string
+                    format: date-time
+                work_arrangement_id:
+                    type: integer
+                ip_address:
+                    type: string
+                notes:
+                    type: string
+                created_at:
+                    type: string
+                    format: date-time
+
+        DailyAttendance:
             type: object
             properties:
                 id:
@@ -81,19 +130,78 @@ components:
                 date:
                     type: string
                     format: date
-                clock_in:
-                    type: string
-                    format: time
-                clock_out:
-                    type: string
-                    format: time
                 status:
                     type: string
                     enum: [present, absent, late]
-                location:
+                first_check_in:
                     type: string
+                    format: date-time
+                last_check_out:
+                    type: string
+                    format: date-time
+                work_hours:
+                    type: number
+                    format: float
                 notes:
                     type: string
+                created_at:
+                    type: string
+                    format: date-time
+
+        Department:
+            type: object
+            properties:
+                id:
+                    type: integer
+                name:
+                    type: string
+                description:
+                    type: string
+                active:
+                    type: boolean
+                    default: true
+                created_at:
+                    type: string
+                    format: date-time
+                updated_at:
+                    type: string
+                    format: date-time
+
+        Position:
+            type: object
+            properties:
+                id:
+                    type: integer
+                name:
+                    type: string
+                department_id:
+                    type: integer
+                created_at:
+                    type: string
+                    format: date-time
+                updated_at:
+                    type: string
+                    format: date-time
+
+        WorkArrangement:
+            type: object
+            properties:
+                id:
+                    type: integer
+                name:
+                    type: string
+                type:
+                    type: string
+                    enum: [WFA, WFO, WFH]
+                is_default:
+                    type: boolean
+                    default: false
+                created_at:
+                    type: string
+                    format: date-time
+                updated_at:
+                    type: string
+                    format: date-time
 
         OvertimeRequest:
             type: object
@@ -102,22 +210,90 @@ components:
                     type: integer
                 employee_id:
                     type: integer
+                overtime_type_id:
+                    type: integer
                 date:
                     type: string
                     format: date
                 start_time:
                     type: string
-                    format: time
+                    format: date-time
                 end_time:
                     type: string
-                    format: time
-                duration:
+                    format: date-time
+                hours:
                     type: number
+                    format: float
+                estimated_compensation:
+                    type: number
+                    format: float
                 reason:
                     type: string
                 status:
                     type: string
                     enum: [pending, approved, rejected]
+                approved_by:
+                    type: integer
+                created_at:
+                    type: string
+                    format: date-time
+                updated_at:
+                    type: string
+                    format: date-time
+
+        BillingCycle:
+            type: object
+            properties:
+                id:
+                    type: integer
+                period_name:
+                    type: string
+                start_date:
+                    type: string
+                    format: date
+                end_date:
+                    type: string
+                    format: date
+                employee_count:
+                    type: integer
+                amount:
+                    type: number
+                    format: float
+                status:
+                    type: string
+                    enum: [unpaid, paid]
+                created_at:
+                    type: string
+                    format: date-time
+                updated_at:
+                    type: string
+                    format: date-time
+
+        Payment:
+            type: object
+            properties:
+                id:
+                    type: integer
+                billing_cycle_id:
+                    type: integer
+                amount:
+                    type: number
+                    format: float
+                payment_method:
+                    type: string
+                payment_reference:
+                    type: string
+                payment_date:
+                    type: string
+                    format: date
+                status:
+                    type: string
+                    enum: [pending, completed]
+                created_by:
+                    type: integer
+                created_at:
+                    type: string
+                    format: date-time
 
 paths:
     /auth/login:
@@ -131,13 +307,18 @@ paths:
                     application/json:
                         schema:
                             type: object
+                            required:
+                                - email
+                                - password
                             properties:
                                 email:
                                     type: string
                                     format: email
+                                    example: "john.doe@example.com"
                                 password:
                                     type: string
                                     format: password
+                                    example: "securepassword123"
             responses:
                 200:
                     description: Login successful
@@ -150,6 +331,135 @@ paths:
                                         type: string
                                     user:
                                         $ref: "#/components/schemas/User"
+                400:
+                    description: Bad request (e.g., missing fields)
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                                        example: "Email and password are required"
+                401:
+                    description: Unauthorized (invalid credentials)
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                                        example: "Invalid email or password"
+                422:
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    errors:
+                                        type: object
+                                        example:
+                                            email: ["The email field is required."]
+                                            password: ["The password must be at least 8 characters."]
+
+    /auth/register:
+        post:
+            tags: [Authentication]
+            summary: User registration
+            description: Register a new user account
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - name
+                                - email
+                                - password
+                            properties:
+                                name:
+                                    type: string
+                                    example: "John Doe"
+                                email:
+                                    type: string
+                                    format: email
+                                    example: "john.doe@example.com"
+                                password:
+                                    type: string
+                                    format: password
+                                    example: "securepassword123"
+                                role:
+                                    type: string
+                                    enum: [admin, hr, employee]
+                                    example: "employee"
+            responses:
+                201:
+                    description: User registered successfully
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: "User registered successfully"
+                                    user:
+                                        $ref: "#/components/schemas/User"
+                400:
+                    description: Bad request (e.g., email already exists)
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                                        example: "Email already in use"
+                422:
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    errors:
+                                        type: object
+                                        example:
+                                            email: ["The email field is required."]
+                                            password: ["The password must be at least 8 characters."]
+
+    /auth/logout:
+        post:
+            tags: [Authentication]
+            summary: User logout
+            description: Log out the currently authenticated user by invalidating the access token.
+            security:
+                - bearerAuth: []  # Logout memerlukan autentikasi token
+            responses:
+                200:
+                    description: Logout successful
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: "Successfully logged out"
+                401:
+                    description: Unauthorized (missing or invalid token)
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                                        example: "Unauthorized: Token is missing or invalid"
+
 
     /employees:
         get:
@@ -205,10 +515,42 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Employee"
 
-    /attendance:
+        put:
+            tags: [Employees]
+            summary: Update employee details
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: integer
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Employee"
+            responses:
+                200:
+                    description: Employee updated successfully
+
+        delete:
+            tags: [Employees]
+            summary: Delete employee by ID
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: integer
+            responses:
+                200:
+                    description: Employee deleted successfully
+
+    /employee-documents:
         post:
-            tags: [Attendance]
-            summary: Clock in/out
+            tags: [Employee Documents]
+            summary: Upload a new employee document
             requestBody:
                 required: true
                 content:
@@ -216,18 +558,193 @@ paths:
                         schema:
                             type: object
                             properties:
-                                type:
+                                employee_id:
+                                    type: integer
+                                title:
                                     type: string
-                                    enum: [in, out]
-                                location:
+                                document_url:
+                                    type: string
+                                status:
+                                    type: string
+                                    enum: [draft, active]
+                                created_by:
+                                    type: integer
+            responses:
+                201:
+                    description: Document uploaded successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/EmployeeDocument"
+                400:
+                    description: Invalid request
+    
+        get:
+            tags: [Employee Documents]
+            summary: Get all employee documents
+            parameters:
+                - in: query
+                  name: employee_id
+                  schema:
+                      type: integer
+            responses:
+                200:
+                    description: List of employee documents
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/EmployeeDocument"
+    
+    /employee-documents/{id}:
+        get:
+            tags: [Employee Documents]
+            summary: Get a specific employee document by ID
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: integer
+            responses:
+                200:
+                    description: Employee document details
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/EmployeeDocument"
+                404:
+                    description: Document not found
+    
+        put:
+            tags: [Employee Documents]
+            summary: Update an employee document
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: integer
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                title:
+                                    type: string
+                                document_url:
+                                    type: string
+                                status:
+                                    type: string
+                                    enum: [draft, active]
+            responses:
+                200:
+                    description: Document updated successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/EmployeeDocument"
+                400:
+                    description: Invalid request
+                404:
+                    description: Document not found
+    
+        delete:
+            tags: [Employee Documents]
+            summary: Delete an employee document
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: integer
+            responses:
+                204:
+                    description: Document deleted successfully
+                404:
+                    description: Document not found
+
+    /attendance/check-in:
+        post:
+            tags: [Attendance]
+            summary: Employee check-in
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                employee_id:
+                                    type: integer
+                                    example: 1
+                                work_arrangement_id:
+                                    type: integer
+                                    example: 1
+                                ip_address:
+                                    type: string
+                                notes:
                                     type: string
             responses:
                 200:
-                    description: Attendance recorded
+                    description: Check-in recorded successfully
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                - $ref: "#/components/schemas/AttendanceLog"
+                                - type: object
+                                  properties:
+                                      event_type:
+                                          type: string
+                                          enum: [check_in]
+                400:
+                    description: Invalid request
 
+    /attendance/check-out:
+        post:
+            tags: [Attendance]
+            summary: Employee check-out
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                employee_id:
+                                    type: integer
+                                    example: 1
+                                work_arrangement_id:
+                                    type: integer
+                                    example: 1
+                                ip_address:
+                                    type: string
+                                notes:
+                                    type: string
+            responses:
+                200:
+                    description: Check-out recorded successfully
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                - $ref: "#/components/schemas/AttendanceLog"
+                                - type: object
+                                  properties:
+                                      event_type:
+                                          type: string
+                                          enum: [check_out]
+                400:
+                    description: Invalid request
+
+    /attendance/logs:
         get:
             tags: [Attendance]
-            summary: Get attendance records
+            summary: Get attendance logs
             parameters:
                 - in: query
                   name: start_date
@@ -245,14 +762,63 @@ paths:
                       type: integer
             responses:
                 200:
-                    description: List of attendance records
+                    description: List of attendance logs
                     content:
                         application/json:
                             schema:
                                 type: array
                                 items:
-                                    $ref: "#/components/schemas/Attendance"
+                                    $ref: "#/components/schemas/AttendanceLog"
 
+    /daily-attendance:
+        get:
+            tags: [Daily Attendance]
+            summary: Get daily attendance records
+            parameters:
+                - in: query
+                  name: start_date
+                  schema:
+                      type: string
+                      format: date
+                - in: query
+                  name: end_date
+                  schema:
+                      type: string
+                      format: date
+                - in: query
+                  name: employee_id
+                  schema:
+                      type: integer
+            responses:
+                200:
+                    description: List of daily attendance records
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/DailyAttendance"
+
+    /daily-attendance/{id}:
+        get:
+            tags: [Daily Attendance]
+            summary: Get daily attendance by ID
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: integer
+            responses:
+                200:
+                    description: Daily attendance record
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/DailyAttendance"
+                404:
+                    description: Attendance record not found
+  
     /overtime:
         post:
             tags: [Overtime]
@@ -315,6 +881,300 @@ paths:
             responses:
                 200:
                     description: Overtime request updated
+
+    /departments:
+        get:
+            tags: [Departments]
+            summary: Get all departments
+            responses:
+                200:
+                    description: List of all departments
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/Department"
+        post:
+            tags: [Departments]
+            summary: Create a new department
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                name:
+                                    type: string
+                                description:
+                                    type: string
+                                active:
+                                    type: boolean
+            responses:
+                201:
+                    description: Department created successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Department"
+
+    /departments/{id}:
+        get:
+            tags: [Departments]
+            summary: Get department by ID
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: integer
+            responses:
+                200:
+                    description: Department details
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Department"
+                404:
+                    description: Department not found
+        put:
+            tags: [Departments]
+            summary: Update department by ID
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: integer
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                name:
+                                    type: string
+                                description:
+                                    type: string
+                                active:
+                                    type: boolean
+            responses:
+                200:
+                    description: Department updated successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Department"
+                404:
+                    description: Department not found
+        delete:
+            tags: [Departments]
+            summary: Delete department by ID
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: integer
+            responses:
+                204:
+                    description: Department deleted successfully
+                404:
+                    description: Department not found
+
+    /positions:
+        get:
+            tags: [Positions]
+            summary: Get all positions
+            responses:
+                200:
+                    description: List of positions
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/Position"
+    
+        post:
+            tags: [Positions]
+            summary: Create a new position
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                name:
+                                    type: string
+                                department_id:
+                                    type: integer
+            responses:
+                201:
+                    description: Position created successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Position"
+    
+    /positions/{id}:
+        get:
+            tags: [Positions]
+            summary: Get a position by ID
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: integer
+            responses:
+                200:
+                    description: Position details
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Position"
+                404:
+                    description: Position not found
+    
+        put:
+            tags: [Positions]
+            summary: Update a position by ID
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: integer
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                name:
+                                    type: string
+                                department_id:
+                                    type: integer
+            responses:
+                200:
+                    description: Position updated successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Position"
+                404:
+                    description: Position not found
+    
+        delete:
+            tags: [Positions]
+            summary: Delete a position by ID
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: integer
+            responses:
+                204:
+                    description: Position deleted successfully
+                404:
+                    description: Position not found
+
+    /work-arrangements:
+        get:
+            tags: [Work Arrangements]
+            summary: Get all work arrangements
+            responses:
+                200:
+                    description: List of work arrangements
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/WorkArrangement"
+    
+        post:
+            tags: [Work Arrangements]
+            summary: Create a new work arrangement
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/WorkArrangement"
+            responses:
+                201:
+                    description: Work arrangement created successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/WorkArrangement"
+
+    /work-arrangements/{id}:
+        get:
+            tags: [Work Arrangements]
+            summary: Get work arrangement by ID
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: integer
+            responses:
+                200:
+                    description: Work arrangement details
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/WorkArrangement"
+                404:
+                    description: Work arrangement not found
+    
+        put:
+            tags: [Work Arrangements]
+            summary: Update work arrangement by ID
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: integer
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/WorkArrangement"
+            responses:
+                200:
+                    description: Work arrangement updated successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/WorkArrangement"
+                404:
+                    description: Work arrangement not found
+    
+        delete:
+            tags: [Work Arrangements]
+            summary: Delete work arrangement by ID
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: integer
+            responses:
+                204:
+                    description: Work arrangement deleted successfully
+                404:
+                    description: Work arrangement not found
 
 security:
     - bearerAuth: []
