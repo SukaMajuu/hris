@@ -13,7 +13,7 @@ services:
         networks:
             - hris_network
         healthcheck:
-            test: ["CMD", "pg_isready", "-U", "root"]
+            test: ["CMD", "pg_isready", "-U", "root", "-d", "hris"]
             interval: 10s
             timeout: 5s
             retries: 5

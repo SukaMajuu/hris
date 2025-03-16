@@ -1,0 +1,16 @@
+{
+    "name": "hris-monorepo",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "start:frontend": "cd apps/frontend && npm run dev",
+        "start:backend": "cd apps/backend && php artisan serve",
+        "start:db": "cd infrastructure/docker && docker-compose up db",
+        "start:all": "concurrently \"npm run start:db\" \"npm run start:backend\" \"npm run start:frontend\"",
+        "dev": "npm run start:all",
+        "install:all": "concurrently \"cd apps/frontend && npm install\" \"cd apps/backend && composer install\""
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2"
+    }
+}
