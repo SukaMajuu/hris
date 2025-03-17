@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    libpq-dev
+    libpq-dev \
+    nginx
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -25,8 +26,8 @@ WORKDIR /var/www/html
 # Copy application code
 COPY . .
 
-# Create .env file from .env.example
-RUN cp .env.example .env
+# Create .env file from .env.example if it doesn't exist
+RUN if [ ! -f .env ]; then cp .env.example .env; fi
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html
@@ -35,13 +36,26 @@ RUN chmod -R 755 /var/www/html/storage
 # Install dependencies
 RUN composer install --optimize-autoloader --no-dev
 
-# Generate application key
+# Generate application key if not already set
 RUN php artisan key:generate --force
 
-# Cache configuration and routes
-RUN php artisan config:cache
-RUN php artisan route:cache
+# Make sure the Swagger documentation directory exists
+RUN mkdir -p /var/www/html/app/Http/Controllers/Api/Documentation
 
-EXPOSE 9000
+# Configure nginx
+COPY infrastructure/docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 
-CMD ["php-fpm"]
+# Create a startup script
+RUN echo '#!/bin/bash\n\
+php-fpm -D\n\
+nginx\n\
+' > /usr/local/bin/startup.sh
+
+RUN chmod +x /usr/local/bin/startup.sh
+
+# Expose port 80 for Azure
+EXPOSE 80
+
+# Start both PHP-FPM and Nginx
+CMD ["/usr/local/bin/startup.sh"]
