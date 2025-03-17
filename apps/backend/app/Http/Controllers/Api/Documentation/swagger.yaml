@@ -1175,5 +1175,59 @@ paths:
         404:
           description: Work arrangement not found
 
+  /health:
+    get:
+      summary: Health Check
+      description: Returns the health status of the API
+      operationId: getHealthStatus
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: 2023-03-17T12:00:00Z
+
+  /status:
+    get:
+      summary: Get API status
+      description: Returns the current status of the API
+      operationId: getApiStatus
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: API is running
+                  data:
+                    type: object
+                    properties:
+                      version:
+                        type: string
+                        example: 1.0.0
+                      environment:
+                        type: string
+                        example: production
+                      server_time:
+                        type: string
+                        format: date-time
+                        example: 2023-03-17T12:00:00Z
+
 security:
   - bearerAuth: []
