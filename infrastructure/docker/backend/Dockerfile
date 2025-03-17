@@ -41,12 +41,14 @@ RUN php artisan key:generate --force
 
 # Configure nginx
 COPY ./infrastructure/docker/nginx/default.conf /etc/nginx/conf.d/default.conf
-RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 
 # Create a startup script
 RUN echo '#!/bin/bash\n\
+echo "Starting container at $(date)"\n\
+echo "Starting PHP-FPM..."\n\
 php-fpm -D\n\
-nginx\n\
+echo "Starting Nginx..."\n\
+exec nginx -g "daemon off;"\n\
 ' > /usr/local/bin/startup.sh
 
 RUN chmod +x /usr/local/bin/startup.sh
