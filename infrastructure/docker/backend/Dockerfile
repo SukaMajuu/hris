@@ -23,7 +23,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 # Copy application code
-COPY . ./
+COPY . .
 
 # Create .env file from .env.example
 RUN cp .env.example .env
