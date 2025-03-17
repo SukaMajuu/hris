@@ -35,7 +35,7 @@ jobs:
             - name: Build and push frontend image
               uses: docker/build-push-action@v4
               with:
-                  context: ./apps/frontend
+                  context: .
                   file: ./infrastructure/docker/frontend/Dockerfile
                   push: true
                   tags: ${{ secrets.AZURE_CONTAINER_REGISTRY }}/hris-frontend-sukamaju123:${{ github.sha }},${{ secrets.AZURE_CONTAINER_REGISTRY }}/hris-frontend-sukamaju123:latest

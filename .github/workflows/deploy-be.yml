@@ -30,7 +30,7 @@ jobs:
             - name: Build and push backend image
               uses: docker/build-push-action@v4
               with:
-                  context: ./apps/backend
+                  context: .
                   file: ./infrastructure/docker/backend/Dockerfile
                   push: true
                   tags: ${{ secrets.AZURE_CONTAINER_REGISTRY }}/hris-backend-sukamaju123:${{ github.sha }}
