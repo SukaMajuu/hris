@@ -10,7 +10,7 @@ RUN npm install --package-lock-only
 RUN npm ci
 
 # Copy application code
-COPY . .
+COPY ./apps/frontend .
 
 # Build the Next.js application
 RUN npm run build
