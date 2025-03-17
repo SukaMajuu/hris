@@ -34,7 +34,7 @@ services:
     # Backend service
     backend:
         build:
-            context: ../../apps/backend
+            context: ../..
             dockerfile: ../../infrastructure/docker/backend/Dockerfile
         volumes:
             - backend_storage:/var/www/html/storage

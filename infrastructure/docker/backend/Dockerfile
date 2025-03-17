@@ -24,7 +24,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 # Copy application code
-COPY . .
+COPY ./apps/backend .
 
 # Create .env file from .env.example if it doesn't exist
 RUN if [ ! -f .env ]; then cp .env.example .env; fi
@@ -38,9 +38,6 @@ RUN composer install --optimize-autoloader --no-dev
 
 # Generate application key if not already set
 RUN php artisan key:generate --force
-
-# Make sure the Swagger documentation directory exists
-RUN mkdir -p /var/www/html/app/Http/Controllers/Api/Documentation
 
 # Configure nginx
 COPY ./infrastructure/docker/nginx/default.conf /etc/nginx/conf.d/default.conf
