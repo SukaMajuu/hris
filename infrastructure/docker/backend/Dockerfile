@@ -43,7 +43,7 @@ RUN php artisan key:generate --force
 RUN mkdir -p /var/www/html/app/Http/Controllers/Api/Documentation
 
 # Configure nginx
-COPY infrastructure/docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY ./infrastructure/docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 
 # Create a startup script
