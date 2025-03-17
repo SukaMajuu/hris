@@ -3,10 +3,6 @@
 use App\Http\Controllers\Api\SwaggerController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 // Health check endpoint for Azure
 Route::get('/health', function() {
     return response()->json([
